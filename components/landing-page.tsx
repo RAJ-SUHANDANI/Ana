@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, type CSSProperties } from "react";
 import { motion, useReducedMotion, type Variants } from "motion/react";
 import { ArrowDown, ArrowUpRight, AudioLines, Menu, X } from "lucide-react";
@@ -19,6 +20,7 @@ const reveal: Variants = {
 };
 
 export function LandingPage() {
+  const router = useRouter();
   const [activeMood, setActiveMood] = useState<keyof typeof moods>("warm");
   const [menuOpen, setMenuOpen] = useState(false);
   const reduceMotion = useReducedMotion();
@@ -89,7 +91,7 @@ export function LandingPage() {
             { number: "03 / PERSONALITY", title: "Your kind of conversation.", copy: "Choose a tone that fits the moment — warm, focused, playful or precise.", visual: "mood" },
             { number: "04 / USEFUL BY NATURE", title: "From thought to action.", copy: "Draft, calculate, organize and turn a conversation into something useful.", visual: "task" },
           ].map((item) => (
-            <motion.article className="capability-card" key={item.number} tabIndex={0} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }} variants={reveal} whileHover={{ y: -7, borderColor: "rgba(167,143,255,.48)" }} transition={{ duration: 0.35 }}>
+            <motion.article className="capability-card" key={item.number} role="link" tabIndex={0} aria-label={item.title + " — open ANA"} onClick={() => router.push("/app")} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); router.push("/app"); } }} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }} variants={reveal} whileHover={{ y: -7, borderColor: "rgba(167,143,255,.48)" }} transition={{ duration: 0.35 }}>
               <div className="card-index">{item.number}</div>
               <div className={"card-visual " + item.visual} aria-hidden="true">
                 {item.visual === "wave" && Array.from({ length: 16 }, (_, i) => <i key={i} style={{ height: (18 + (i % 5) * 11) + "px", animationDelay: "-" + (i * 0.09) + "s" } as CSSProperties} />)}
