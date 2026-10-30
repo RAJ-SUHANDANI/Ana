@@ -1,18 +1,24 @@
-name: Validate ANA
+name: Validate ANA Next.js
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
 jobs:
-  syntax:
+  quality:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node --check worker/index.js
-      - run: node --check src/app.js
-      - run: node --check src/landing.js
-      - run: node --check src/orb.js
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Type check
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Build Next.js
+        run: npm run build
+      - name: Build for Cloudflare Workers
+        run: npm run cf:build
