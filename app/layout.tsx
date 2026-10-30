@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -9,7 +10,6 @@ export const metadata: Metadata = {
   description:
     "A thoughtful AI companion for the questions you carry, the ideas you explore and the things you want to make happen.",
   applicationName: "ANA",
-  metadataBase: new URL("https://ana-ai.pages.dev"),
   openGraph: {
     title: "ANA — A different kind of intelligence",
     description: "A thoughtful AI companion, made for the way your mind moves.",
@@ -29,7 +29,7 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="en">
       <body>{children}</body>
