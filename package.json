@@ -1,0 +1,14 @@
+{
+  "name": "ana-ai-companion",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "check": "node --check worker/index.js && node --check src/app.js && node --check src/landing.js && node --check src/orb.js"
+  },
+  "devDependencies": {
+    "wrangler": "^4.45.0"
+  }
+}
