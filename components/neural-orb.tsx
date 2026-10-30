@@ -147,6 +147,46 @@ export function NeuralOrb({ state = "idle", audioLevel = 0, className = "", labe
         ctx.fill();
       }
 
+      // Delicate energy meridians turn the core into a living field rather than a glass marble.
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius * 0.98, 0, Math.PI * 2);
+      ctx.clip();
+      for (let meridian = 0; meridian < 6; meridian += 1) {
+        const phase = spin * (meridian % 2 ? -0.72 : 0.55) + meridian * 1.047;
+        ctx.beginPath();
+        for (let step = 0; step <= 100; step += 1) {
+          const angle = (step / 100) * Math.PI * 2;
+          const wave = Math.sin(angle * 2 + phase) * 0.12 + Math.cos(angle * 4 - phase) * 0.055;
+          const x = Math.cos(angle + phase * 0.16) * radius * (0.18 + wave);
+          const y = Math.sin(angle + phase * 0.16) * radius * (0.82 + wave);
+          if (step === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = "hsla(" + (hue + meridian * 9) + ", 100%, 91%, " + (0.12 + energy * 0.1) + ")";
+        ctx.lineWidth = 0.8;
+        ctx.shadowColor = "hsla(" + (hue + 12) + ", 100%, 78%, .7)";
+        ctx.shadowBlur = 7;
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // Small motes orbit outside the core to make its motion legible at a glance.
+      for (let mote = 0; mote < 13; mote += 1) {
+        const angle = spin * (mote % 2 ? -0.72 : 0.9) + mote * 0.483;
+        const orbitX = radius * (1.2 + (mote % 4) * 0.105);
+        const orbitY = radius * (0.52 + (mote % 3) * 0.12);
+        const x = cx + Math.cos(angle) * orbitX;
+        const y = cy + Math.sin(angle) * orbitY;
+        const pulse = 0.35 + ((Math.sin(time * 3 + mote) + 1) * 0.5) * 0.65;
+        ctx.beginPath();
+        ctx.arc(x, y, (mote % 4 === 0 ? 1.7 : 0.85) + energy * 0.7, 0, Math.PI * 2);
+        ctx.fillStyle = "hsla(" + (hue + mote * 7) + ", 100%, 88%, " + pulse + ")";
+        ctx.shadowColor = "hsl(" + (hue + 14) + ", 100%, 75%)";
+        ctx.shadowBlur = 12;
+        ctx.fill();
+      }
+
       const highlight = ctx.createRadialGradient(cx - radius * 0.34 + px * 7, cy - radius * 0.42 + py * 7, 0, cx - radius * 0.2, cy - radius * 0.25, radius * 0.68);
       highlight.addColorStop(0, "rgba(255, 255, 255, 0.43)");
       highlight.addColorStop(0.24, "rgba(206, 191, 255, 0.14)");
