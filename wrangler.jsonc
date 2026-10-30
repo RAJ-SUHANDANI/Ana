@@ -3,9 +3,28 @@
   "name": "ana-ai",
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-10-31",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   "upload_source_maps": true,
-  "ai": { "binding": "AI" },
-  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
-  "observability": { "enabled": true }
+  "ai": {
+    "binding": "AI"
+  },
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "ratelimits": [
+    {
+      "name": "AI_RATE_LIMITER",
+      "namespace_id": "784201",
+      "simple": {
+        "limit": 8,
+        "period": 60
+      }
+    }
+  ]
 }
