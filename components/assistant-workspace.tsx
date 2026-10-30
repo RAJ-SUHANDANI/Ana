@@ -415,7 +415,8 @@ export function AssistantWorkspace() {
   const workspaceTitle = historyOpen ? "Your conversations." : activeConversation?.title ?? "A moment to think.";
 
   return (
-    <main className={theme === "light" ? "app-body light-theme" : "app-body"}>
+    <main className={theme === "light" ? "app-body light-theme workspace-luxe" : "app-body workspace-luxe"}>
+      <div className="workspace-ambience" aria-hidden="true"><div /><div /><div /></div>
       <div className="app-shell">
         <aside className={sidebarOpen ? "sidebar open" : "sidebar"} id="sidebar">
           <Link className="brand" href="/"><span className="brand-mark">A</span><span>ANA</span></Link>
