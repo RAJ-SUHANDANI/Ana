@@ -1,4 +1,7 @@
 name: Validate ANA Next.js
+concurrency:
+  group: ana-main-validation-${{ github.ref }}
+  cancel-in-progress: true
 on:
   push:
     branches: [main]
