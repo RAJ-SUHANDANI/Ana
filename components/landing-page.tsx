@@ -15,7 +15,7 @@ const moods = {
 
 const reveal = {
   hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.75, ease: [0.22, 0.8, 0.24, 1] } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.75, ease: "easeOut" } },
 };
 
 export function LandingPage() {
@@ -92,7 +92,7 @@ export function LandingPage() {
             <motion.article className="capability-card" key={item.number} tabIndex={0} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }} variants={reveal} whileHover={{ y: -7, borderColor: "rgba(167,143,255,.48)" }} transition={{ duration: 0.35 }}>
               <div className="card-index">{item.number}</div>
               <div className={"card-visual " + item.visual} aria-hidden="true">
-                {item.visual === "wave" && Array.from({ length: 16 }, (_, i) => <i key={i} style={{ ["--i"]: i } as CSSProperties} />)}
+                {item.visual === "wave" && Array.from({ length: 16 }, (_, i) => <i key={i} style={{ height: (18 + (i % 5) * 11) + "px", animationDelay: "-" + (i * 0.09) + "s" } as CSSProperties} />)}
                 {item.visual === "voice" && <AudioLines size={60} strokeWidth={1} />}
                 {item.visual === "mood" && <><b>calm</b><b>curious</b><b>focused</b></>}
                 {item.visual === "task" && <><span>✓ &nbsp; Untangle an idea</span><span>↗ &nbsp; Shape a plan</span><span>○ &nbsp; Take the next step</span></>}
