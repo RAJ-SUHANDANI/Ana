@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowUp, AudioLines, Check, Clipboard, History, Menu, MessageCircle, Mic, MicOff, Moon, Plus, Settings, Sparkles, Sun, Volume2, X } from "lucide-react";
+import { ArrowLeft, ArrowUp, Clipboard, History, Menu, MessageCircle, Mic, MicOff, Moon, Plus, Settings, Sun, Volume2, X } from "lucide-react";
 import { NeuralOrb, type OrbState } from "@/components/neural-orb";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -91,32 +91,35 @@ export function AssistantWorkspace() {
   }, []);
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved) as Conversation[];
-        if (Array.isArray(parsed)) {
-          setConversations(parsed);
-          if (parsed[0]?.id) setActiveId(parsed[0].id);
+    const timer = window.setTimeout(() => {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved) as Conversation[];
+          if (Array.isArray(parsed)) {
+            setConversations(parsed);
+            if (parsed[0]?.id) setActiveId(parsed[0].id);
+          }
         }
+        setTheme(localStorage.getItem("ana-next-theme") === "light" ? "light" : "dark");
+        setSpeakReplies(localStorage.getItem("ana-next-speak") === "true");
+        setMood((localStorage.getItem("ana-next-mood") as Mood) || "warm");
+      } catch (cause) {
+        console.warn("ANA could not restore browser preferences:", cause);
       }
-      setTheme(localStorage.getItem("ana-next-theme") === "light" ? "light" : "dark");
-      setSpeakReplies(localStorage.getItem("ana-next-speak") === "true");
-      setMood((localStorage.getItem("ana-next-mood") as Mood) || "warm");
-    } catch {
-      notify("Saved preferences could not be read from this browser.");
-    }
-    setReady(true);
-  }, [notify]);
+      setReady(true);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (!ready) return;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(conversations.slice(0, 40)));
-    } catch {
-      notify("Browser storage is full. Consider clearing older conversations.");
+    } catch (cause) {
+      console.warn("ANA could not persist this conversation in browser storage:", cause);
     }
-  }, [conversations, ready, notify]);
+  }, [conversations, ready]);
 
   useEffect(() => {
     if (!ready) return;
@@ -465,7 +468,7 @@ export function AssistantWorkspace() {
             ) : (
               <div className="conversation-welcome">
                 <div className="app-orb-wrap"><NeuralOrb className="app-orb" state={orbState} audioLevel={audioLevel} /><span className="orb-live-label"><i /> {orbState === "listening" ? "LISTENING" : orbState === "thinking" ? "THINKING" : orbState === "speaking" ? "SPEAKING" : "HERE WITH YOU"}</span></div>
-                <div className="welcome-copy"><div className="eyebrow"><span className="eyebrow-line" /> HELLO, I'M ANA</div><h2>Where shall we<br /><em>begin?</em></h2><p>Bring a question, a half-formed idea, or simply a thought you want to explore.</p></div>
+                <div className="welcome-copy"><div className="eyebrow"><span className="eyebrow-line" /> HELLO, I&apos;M ANA</div><h2>Where shall we<br /><em>begin?</em></h2><p>Bring a question, a half-formed idea, or simply a thought you want to explore.</p></div>
                 <div className="suggestion-grid">{suggestions.map((item) => <button className="suggestion-card" key={item.number} onClick={() => void sendMessage(item.prompt)} disabled={busy}><span>{item.number}</span><b>{item.title}</b><i>↗</i></button>)}</div>
               </div>
             )}
@@ -491,7 +494,7 @@ export function AssistantWorkspace() {
           <div className="settings-group"><h3>APPEARANCE</h3><div className="setting-row"><div><b>Atmosphere</b><small>Choose the mood of your workspace.</small></div><div className="theme-switch"><button className={theme === "dark" ? "selected" : ""} onClick={() => setTheme("dark")}><Moon size={13} /> Obsidian</button><button className={theme === "light" ? "selected" : ""} onClick={() => setTheme("light")}><Sun size={13} /> Luminous</button></div></div></div>
           <div className="settings-group"><h3>VOICE</h3><div className="setting-row"><div><b>Read responses aloud</b><small>Use a voice available in your browser.</small></div><label className="switch"><input type="checkbox" checked={speakReplies} onChange={(event) => setSpeakReplies(event.target.checked)} /><span /></label></div><div className="setting-row"><div><b>Voice</b><small>Choose a voice supported by this browser.</small></div><select className="setting-select" value={voiceURI} onChange={(event) => setVoiceURI(event.target.value)}><option value="">System default</option>{voices.map((voice) => <option key={voice.voiceURI} value={voice.voiceURI}>{voice.name} ({voice.lang})</option>)}</select></div></div>
           <div className="settings-group"><h3>YOUR DATA</h3><div className="setting-row"><div><b>Conversation history</b><small>Saved only in this browser.</small></div><button className="button button-danger" onClick={clearHistory}>Clear history</button></div></div>
-          <p className="modal-footnote">Conversation history stays in this browser. Messages are sent to ANA's hosted inference service to generate replies. Microphone use begins only when you choose voice input.</p>
+          <p className="modal-footnote">Conversation history stays in this browser. Messages are sent to ANA&apos;s hosted inference service to generate replies. Microphone use begins only when you choose voice input.</p>
         </section>
       </div>}
       {toast && <div className="toast" role="status">{toast}</div>}
