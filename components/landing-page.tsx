@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState, type CSSProperties } from "react";
 import { motion, useReducedMotion, type Variants } from "motion/react";
-import { ArrowDown, ArrowUpRight, AudioLines, Menu, X } from "lucide-react";
+import {
+  ArrowDown, ArrowUpRight, AudioLines, Compass, Fingerprint, Menu,
+  MessageCircle, Mic, Orbit, ShieldCheck, Sparkles, X,
+} from "lucide-react";
 import { NeuralOrb } from "@/components/neural-orb";
 
 const moods = {
@@ -14,152 +16,228 @@ const moods = {
   calm: "Take your time. There's no need to rush. We can look at it together, one thought at a time.",
 };
 
-const reveal: Variants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.75, ease: "easeOut" } },
+const rise: Variants = {
+  hidden: { opacity: 0, y: 34, filter: "blur(8px)" },
+  visible: {
+    opacity: 1, y: 0, filter: "blur(0px)",
+    transition: { duration: 0.9, ease: [0.22, 0.8, 0.24, 1] },
+  },
 };
 
 export function LandingPage() {
-  const router = useRouter();
   const [activeMood, setActiveMood] = useState<keyof typeof moods>("warm");
   const [menuOpen, setMenuOpen] = useState(false);
   const reduceMotion = useReducedMotion();
   const closeMenu = () => setMenuOpen(false);
 
   return (
-    <main className="landing">
-      <div className="ambient ambient-one" />
-      <div className="ambient ambient-two" />
-      <header className="site-header">
-        <Link className="brand" href="/" aria-label="ANA home"><span className="brand-mark">A</span><span>ANA</span></Link>
-        <nav className={menuOpen ? "desktop-nav open" : "desktop-nav"} aria-label="Main navigation">
+    <main className="landing luxury-landing">
+      <div className="cosmic-backdrop" aria-hidden="true">
+        <div className="cosmic-grid" /><div className="cosmic-grain" />
+        <div className="aura-cloud aura-cloud-one" /><div className="aura-cloud aura-cloud-two" /><div className="aura-cloud aura-cloud-three" />
+      </div>
+
+      <header className="lux-header">
+        <Link className="lux-brand" href="/" aria-label="ANA home">
+          <span className="lux-brand-symbol"><span>A</span><i /></span>
+          <span className="lux-brand-name">ANA<span>®</span></span>
+        </Link>
+        <nav className={menuOpen ? "lux-nav is-open" : "lux-nav"} aria-label="Main navigation">
           <a href="#experience" onClick={closeMenu}>Experience</a>
           <a href="#capabilities" onClick={closeMenu}>Capabilities</a>
-          <a href="#personality" onClick={closeMenu}>Personality</a>
+          <a href="#presence" onClick={closeMenu}>The presence</a>
           <a href="#principles" onClick={closeMenu}>Principles</a>
         </nav>
-        <div className="header-actions">
-          <span className="availability"><i /> AVAILABLE IN YOUR BROWSER</span>
-          <Link className="button button-small button-outline" href="/app">Enter ANA <ArrowUpRight size={14} /></Link>
+        <div className="lux-header-right">
+          <span className="lux-availability"><i /> SYSTEM ONLINE</span>
+          <Link className="lux-enter" href="/app">Enter ANA <ArrowUpRight size={15} /></Link>
         </div>
-        <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen}>
-          {menuOpen ? <X size={19} /> : <Menu size={19} />}
+        <button className="lux-menu-toggle" onClick={() => setMenuOpen((open) => !open)} aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen}>
+          {menuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </header>
 
-      <section className="hero" id="top">
-        <motion.div className="hero-copy" initial="hidden" animate="visible" variants={reveal}>
-          <div className="eyebrow"><span className="eyebrow-line" /> PERSONAL INTELLIGENCE, REIMAGINED</div>
-          <h1 className="hero-title">A different kind<br />of <em>intelligence.</em></h1>
-          <p className="hero-description">Meet ANA. A thoughtful AI companion for the questions you carry, the ideas you explore and the things you want to make happen.</p>
-          <div className="hero-actions">
-            <Link className="button button-primary" href="/app">Experience ANA <ArrowUpRight size={16} /></Link>
-            <a className="text-link" href="#experience">Discover the experience <ArrowDown size={13} /></a>
+      <section className="lux-hero" id="top">
+        <div className="hero-coordinate coordinate-left">A / 001<br />PERSONAL INTELLIGENCE</div>
+        <div className="hero-coordinate coordinate-right">EST. FOR THE<br />NEXT WAY OF THINKING</div>
+        <motion.div className="lux-hero-copy" initial="hidden" animate="visible" variants={rise}>
+          <div className="lux-eyebrow"><span className="eyebrow-pulse" /> THE PERSONAL INTELLIGENCE SYSTEM <b>01—∞</b></div>
+          <h1>Intelligence,<br />with a <em>presence.</em></h1>
+          <p className="lux-hero-intro">Not another tool demanding your attention. A thoughtful companion that gives your ideas room to become something more.</p>
+          <div className="lux-hero-actions">
+            <Link href="/app" className="lux-primary-button"><span>Enter the experience</span><ArrowUpRight size={17} /></Link>
+            <a className="lux-secondary-link" href="#experience">Discover ANA <ArrowDown size={14} /></a>
           </div>
-          <div className="hero-foot"><span className="tiny-orbit" /> MADE TO FEEL MORE HUMAN <span className="hero-foot-divider" /> WEB-BASED · NO INSTALLATION</div>
+          <div className="lux-hero-proof">
+            <div className="proof-item"><span>01</span><b>Human in focus</b></div><div className="proof-divider" />
+            <div className="proof-item"><span>02</span><b>Quietly capable</b></div><div className="proof-divider" />
+            <div className="proof-item"><span>03</span><b>Made for the web</b></div>
+          </div>
         </motion.div>
-        <motion.div className="orb-stage" initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: reduceMotion ? 0 : 1.2, delay: 0.18 }}>
-          <div className="orb-label orb-label-top"><span className="label-dot" /> ANA / NEURAL PRESENCE <span>01—∞</span></div>
-          <NeuralOrb className="hero-orb" label="ANA luminous neural sphere, slowly moving in an energy field" />
-          <div className="orb-ring ring-a" /><div className="orb-ring ring-b" />
-          <div className="orb-crosshair crosshair-one" /><div className="orb-crosshair crosshair-two" />
-          <div className="orb-caption"><span>FIG. 01</span><span>AWARENESS IN MOTION</span></div>
-          <div className="orb-coordinate">INTELLIGENCE FIELD<br />ANA / 001</div>
+
+        <motion.div className="lux-hero-visual"
+          initial={{ opacity: 0, scale: 0.88, filter: "blur(18px)" }}
+          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+          transition={{ duration: reduceMotion ? 0 : 1.55, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}>
+          <div className="visual-halo halo-outer" /><div className="visual-halo halo-inner" />
+          <div className="orbital-map">
+            <div className="orbit-track orbit-track-one"><i /></div><div className="orbit-track orbit-track-two"><i /></div><div className="orbit-track orbit-track-three"><i /></div>
+            <div className="orbit-axis axis-horizontal" /><div className="orbit-axis axis-vertical" />
+            <div className="orbit-node node-one" /><div className="orbit-node node-two" /><div className="orbit-node node-three" />
+          </div>
+          <div className="visual-index visual-index-top"><span>CORE / 001</span><i /> NEURAL PRESENCE</div>
+          <NeuralOrb className="hero-orb" label="ANA's luminous neural presence, a glowing violet and blue energy sphere surrounded by orbital light" />
+          <motion.div className="visual-float float-core" animate={reduceMotion ? undefined : { y: [0, -12, 0], rotate: [0, 1.2, 0] }} transition={{ duration: 7.5, repeat: Infinity, ease: "easeInOut" }}>
+            <span className="float-icon"><Orbit size={15} /></span><span><b>NEURAL CORE</b><small>ADAPTIVE · RESPONSIVE</small></span>
+          </motion.div>
+          <motion.div className="visual-float float-signal" animate={reduceMotion ? undefined : { y: [0, 9, 0] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}>
+            <span className="signal-bars"><i /><i /><i /><i /><i /></span><span><b>VOICE SIGNAL</b><small>READY WHEN YOU ARE</small></span>
+          </motion.div>
+          <div className="visual-index visual-index-bottom"><span>FIELD NOTE 001</span><b>FORM FOLLOWS THOUGHT</b></div>
         </motion.div>
-        <div className="hero-scroll"><span>SCROLL TO EXPLORE</span><i /></div>
+        <a className="lux-scroll-cue" href="#experience"><span>SCROLL TO ENTER</span><i><b /></i></a>
+        <div className="hero-side-code">ANA / INTERFACE STUDY <span>© 2026</span></div>
       </section>
 
-      <motion.section className="intro-section section-shell" id="experience" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={reveal}>
-        <div className="section-kicker"><span>01</span> THE EXPERIENCE</div>
-        <div className="intro-grid">
-          <h2 className="display-heading">Not another window<br />to type into. <em>A space<br />to think.</em></h2>
-          <div className="intro-aside"><p>Some conversations solve a problem. Others open a door. ANA is designed for both — clear when you need direction, curious when you want to explore, and present when you simply need to talk something through.</p><Link href="/app" className="underlined-link">Step inside ANA <ArrowUpRight size={14} /></Link></div>
+      <div className="lux-signal-rail" aria-label="ANA product characteristics">
+        <div className="signal-rail-label">THE ANA STANDARD</div>
+        <div className="signal-rail-items">
+          <span><i /> BROWSER NATIVE</span><span><i /> NO LOCAL MODEL</span><span><i /> YOUR CONVERSATION STYLE</span><span><i /> VOICE OPTIONAL</span><span><i /> BUILT AROUND YOU</span>
         </div>
-        <div className="statement-rule"><span>THOUGHTFUL BY DESIGN</span><span>ALWAYS YOURS TO SHAPE</span></div>
+      </div>
+
+      <motion.section className="lux-manifesto section-shell" id="experience" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.18 }} variants={rise}>
+        <div className="lux-section-meta"><span>01 / THE EXPERIENCE</span><span>THOUGHT, WITHOUT FRICTION</span></div>
+        <div className="manifesto-layout">
+          <h2>Less interface.<br /><em>More intelligence.</em></h2>
+          <div className="manifesto-aside">
+            <span className="manifesto-mark">“</span>
+            <p>The best conversations don't feel like using software. They feel like finding the missing piece — the question, the perspective, the next step you couldn't quite reach alone.</p>
+            <Link href="/app" className="lux-text-link">Step inside ANA <ArrowUpRight size={15} /></Link>
+          </div>
+        </div>
+        <div className="manifesto-bottom"><span>DESIGNED TO DISAPPEAR INTO THE MOMENT</span><span className="manifesto-line" /><span>BUILT TO BRING YOUR THINKING FORWARD</span></div>
       </motion.section>
 
-      <section className="capabilities-section section-shell" id="capabilities">
-        <motion.div className="section-heading" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={reveal}>
-          <div className="section-kicker"><span>02</span> WHAT ANA BRINGS</div>
-          <h2 className="display-heading">Made for the way<br /><em>your mind moves.</em></h2>
-          <p>One companion, many ways to move an idea forward.</p>
+      <section className="lux-capabilities section-shell" id="capabilities">
+        <motion.div className="lux-section-heading" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={rise}>
+          <div><div className="lux-section-meta"><span>02 / WHAT IT CAN DO</span><span>ONE SYSTEM. MANY DIRECTIONS.</span></div><h2>Ideas don't move<br />in <em>straight lines.</em></h2></div>
+          <p>Follow a thought, change direction, find a sharper angle — ANA is built to move with you.</p>
         </motion.div>
-        <div className="capability-grid">
-          {[
-            { number: "01 / CONVERSATION", title: "Think out loud.", copy: "Ask freely, follow a thought, challenge an idea or find a clearer way to see something.", visual: "wave" },
-            { number: "02 / VOICE", title: "Speak naturally.", copy: "Move between typing and voice, at your own pace.", visual: "voice" },
-            { number: "03 / PERSONALITY", title: "Your kind of conversation.", copy: "Choose a tone that fits the moment — warm, focused, playful or precise.", visual: "mood" },
-            { number: "04 / USEFUL BY NATURE", title: "From thought to action.", copy: "Draft, calculate, organize and turn a conversation into something useful.", visual: "task" },
-          ].map((item) => (
-            <motion.article className="capability-card" key={item.number} role="link" tabIndex={0} aria-label={item.title + " — open ANA"} onClick={() => router.push("/app")} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); router.push("/app"); } }} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }} variants={reveal} whileHover={{ y: -7, borderColor: "rgba(167,143,255,.48)" }} transition={{ duration: 0.35 }}>
-              <div className="card-index">{item.number}</div>
-              <div className={"card-visual " + item.visual} aria-hidden="true">
-                {item.visual === "wave" && Array.from({ length: 16 }, (_, i) => <i key={i} style={{ height: (18 + (i % 5) * 11) + "px", animationDelay: "-" + (i * 0.09) + "s" } as CSSProperties} />)}
-                {item.visual === "voice" && <AudioLines size={60} strokeWidth={1} />}
-                {item.visual === "mood" && <><b>calm</b><b>curious</b><b>focused</b></>}
-                {item.visual === "task" && <><span>✓ &nbsp; Untangle an idea</span><span>↗ &nbsp; Shape a plan</span><span>○ &nbsp; Take the next step</span></>}
-              </div>
-              <div><h3>{item.title}</h3><p>{item.copy}</p></div>
-              <span className="card-arrow"><ArrowUpRight size={17} /></span>
-            </motion.article>
-          ))}
-        </div>
-      </section>
-
-      <section className="orb-feature section-shell">
-        <motion.div className="orb-feature-copy" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={reveal}>
-          <div className="section-kicker"><span>03</span> A LIVING PRESENCE</div>
-          <h2 className="display-heading">An assistant<br />you can <em>feel.</em></h2>
-          <p>At the centre of ANA is a single point of light — a sphere that breathes, listens and responds. Its movement follows the rhythm of a conversation, giving every exchange a quiet sense of presence.</p>
-          <div className="orb-state-list"><span><i className="state-dot" /> AT REST</span><span><i className="state-dot listening" /> LISTENING</span><span><i className="state-dot speaking" /> SPEAKING</span></div>
-        </motion.div>
-        <motion.div className="feature-orb-wrap" initial={{ opacity: 0, scale: 0.92 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 1 }}>
-          <NeuralOrb className="feature-orb" label="ANA neural sphere with layered light and internal plasma filaments" />
-          <div className="feature-orb-glow" /><span className="feature-orb-note">ONE FORM. MANY STATES.</span>
-        </motion.div>
-      </section>
-
-      <section className="personality-section section-shell" id="personality">
-        <div className="section-kicker"><span>04</span> YOUR TONE, YOUR TERMS</div>
-        <div className="personality-grid">
-          <motion.div className="personality-intro" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}>
-            <h2 className="display-heading">Same intelligence.<br /><em>Different energy.</em></h2>
-            <p>Tell ANA how you would like the conversation to feel. The selected style shapes the way responses are written — without changing what you ask.</p>
-          </motion.div>
-          <motion.div className="personality-demo" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}>
-            <div className="mood-tabs" role="group" aria-label="Choose a conversation style">
-              {Object.keys(moods).map((mood) => <button key={mood} className={activeMood === mood ? "mood-tab active" : "mood-tab"} onClick={() => setActiveMood(mood as keyof typeof moods)} aria-pressed={activeMood === mood}>{mood}</button>)}
+        <div className="lux-bento-grid">
+          <motion.article className="lux-bento-card bento-conversation" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }} variants={rise} whileHover={reduceMotion ? undefined : { y: -7 }}>
+            <div className="bento-topline"><span>01 / CONVERSATION</span><MessageCircle size={16} /></div>
+            <div className="bento-conversation-copy"><h3>Think beyond<br /><em>the first answer.</em></h3><p>Explore a question from every angle. Keep going until it clicks.</p></div>
+            <div className="conversation-visual" aria-hidden="true">
+              <div className="conversation-visual-line"><span className="mini-avatar">A</span><span>What if we looked at it differently?</span><i>NOW</i></div>
+              <div className="conversation-visual-line response-line"><span className="mini-avatar">A</span><span>Let's turn the problem around. Start with what you already know...</span></div>
+              <div className="conversation-spark"><Sparkles size={16} /></div><div className="conversation-orbit-mark"><i /><i /><i /></div>
             </div>
-            <div className="demo-message"><div className="demo-avatar">A</div><div><div className="demo-meta">ANA <span>· A MOMENT WITH YOU</span></div><motion.p key={activeMood} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>{moods[activeMood]}</motion.p></div></div>
-            <div className="demo-note"><span className="demo-note-dot" /> SELECT A STYLE TO FEEL THE DIFFERENCE</div>
+            <Link href="/app" className="bento-link" aria-label="Start a conversation with ANA"><ArrowUpRight size={17} /></Link>
+          </motion.article>
+
+          <motion.article className="lux-bento-card bento-voice" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }} variants={rise} whileHover={reduceMotion ? undefined : { y: -7 }}>
+            <div className="bento-topline"><span>02 / VOICE</span><Mic size={16} /></div>
+            <div className="voice-visual" aria-hidden="true">
+              {Array.from({ length: 31 }, (_, index) => <i key={index} style={{ "--bar": (16 + ((index * 17) % 58)) + "%", "--delay": (index * -0.043) + "s" } as CSSProperties} />)}
+            </div>
+            <div className="bento-card-copy"><h3>Let the words<br /><em>flow naturally.</em></h3><p>Switch between text and voice, without breaking your train of thought.</p></div>
+            <Link href="/app" className="bento-link" aria-label="Try voice with ANA"><ArrowUpRight size={17} /></Link>
+          </motion.article>
+
+          <motion.article className="lux-bento-card bento-personality" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }} variants={rise} whileHover={reduceMotion ? undefined : { y: -7 }}>
+            <div className="bento-topline"><span>03 / PERSONALITY</span><Fingerprint size={16} /></div>
+            <div className="personality-visual" aria-hidden="true">
+              <div className="personality-orbit p-orbit-one" /><div className="personality-orbit p-orbit-two" />
+              <span className="personality-center">A</span><span className="personality-chip chip-warm">warm</span><span className="personality-chip chip-calm">calm</span><span className="personality-chip chip-focus">focused</span>
+            </div>
+            <div className="bento-card-copy"><h3>Your tone.<br /><em>Your terms.</em></h3><p>Choose the energy that fits the moment. The conversation follows your lead.</p></div>
+            <Link href="/app" className="bento-link" aria-label="Choose a conversation style"><ArrowUpRight size={17} /></Link>
+          </motion.article>
+
+          <motion.article className="lux-bento-card bento-create" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }} variants={rise} whileHover={reduceMotion ? undefined : { y: -7 }}>
+            <div className="bento-topline"><span>04 / MOMENTUM</span><Compass size={16} /></div>
+            <div className="create-visual" aria-hidden="true">
+              <div className="create-step"><span>01</span><b>Untangle an idea</b><i>✓</i></div>
+              <div className="create-step"><span>02</span><b>Shape a direction</b><i>↗</i></div>
+              <div className="create-step"><span>03</span><b>Make the next move</b><i>○</i></div>
+            </div>
+            <div className="bento-card-copy"><h3>From thought<br /><em>to momentum.</em></h3><p>Draft, calculate, organize and turn the conversation into something useful.</p></div>
+            <Link href="/app" className="bento-link" aria-label="Make a plan with ANA"><ArrowUpRight size={17} /></Link>
+          </motion.article>
+        </div>
+      </section>
+
+      <section className="lux-presence section-shell" id="presence">
+        <div className="presence-copy">
+          <div className="lux-section-meta"><span>03 / THE NEURAL PRESENCE</span><span>ANA CORE : 001</span></div>
+          <h2>A signal<br />you can <em>feel.</em></h2>
+          <p>At the centre of ANA is a living field of light. It breathes at rest, gathers energy when you speak, and moves with the rhythm of a response. Not decoration. A visual language for the conversation.</p>
+          <div className="presence-states"><span><i className="state-rest" /> AT REST</span><span><i className="state-listen" /> LISTENING</span><span><i className="state-think" /> THINKING</span><span><i className="state-speak" /> SPEAKING</span></div>
+          <div className="presence-spec"><span>FIELD TYPE</span><b>RESPONSIVE / LUMINOUS</b><span>INPUT</span><b>VOICE + CONVERSATION</b></div>
+        </div>
+        <motion.div className="presence-visual" initial={{ opacity: 0, scale: 0.9, filter: "blur(14px)" }} whileInView={{ opacity: 1, scale: 1, filter: "blur(0px)" }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 1.15 }}>
+          <div className="presence-grid" /><div className="presence-orbit presence-orbit-a" /><div className="presence-orbit presence-orbit-b" />
+          <NeuralOrb className="presence-orb" label="ANA's animated light field, moving with conversation states" />
+          <div className="presence-coordinate coord-a">CORE / ACTIVE</div><div className="presence-coordinate coord-b">SYNCHRONIZED</div><div className="presence-coordinate coord-c">001 : 001</div><div className="presence-crosshair" />
+        </motion.div>
+      </section>
+
+      <section className="lux-personality section-shell" id="personality">
+        <div className="lux-section-meta"><span>04 / A PERSONAL RHYTHM</span><span>SAME INTELLIGENCE. DIFFERENT ENERGY.</span></div>
+        <div className="lux-personality-layout">
+          <motion.div className="personality-copy" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={rise}>
+            <h2>Meet the moment<br />with <em>your own energy.</em></h2>
+            <p>Some days call for focus. Others for curiosity, warmth or a little room to breathe. Set the tone and let the conversation find its rhythm.</p>
+            <div className="personality-foot"><span>01—04</span><i /> LIVE STYLE PREVIEW</div>
+          </motion.div>
+          <motion.div className="lux-personality-demo" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={rise}>
+            <div className="demo-console-head"><span><i /> LIVE PREVIEW</span><b>ANA / PERSONALITY ENGINE</b></div>
+            <div className="lux-mood-tabs" role="group" aria-label="Choose a conversation style">
+              {Object.keys(moods).map((mood) => <button key={mood} className={activeMood === mood ? "active" : ""} onClick={() => setActiveMood(mood as keyof typeof moods)} aria-pressed={activeMood === mood}>{mood}</button>)}
+            </div>
+            <div className="lux-demo-message">
+              <div className="lux-demo-avatar"><span>A</span><i /></div>
+              <div className="lux-demo-content"><div className="lux-demo-meta">ANA <span>· A MOMENT WITH YOU</span></div>
+                <motion.p key={activeMood} initial={{ opacity: 0, y: 10, filter: "blur(5px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} transition={{ duration: 0.4 }}>{moods[activeMood]}</motion.p>
+              </div>
+            </div>
+            <div className="demo-console-foot"><span>STYLE ACTIVE</span><b>{activeMood.toUpperCase()}</b><i /></div>
           </motion.div>
         </div>
       </section>
 
-      <section className="principles-section section-shell" id="principles">
-        <div className="section-kicker"><span>05</span> QUIETLY CONSIDERED</div>
-        <div className="principles-grid">
-          <motion.h2 className="display-heading" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}>Good intelligence<br />starts with <em>trust.</em></motion.h2>
-          <div className="principle-list">
-            {[
-              ["01", "Clear about its limits.", "ANA should be useful without pretending to know or do everything."],
-              ["02", "Yours to shape.", "Choose the tone, voice and experience that work for you."],
-              ["03", "No unnecessary complexity.", "Open ANA in a browser. No local model installation or paid subscription is required."],
-            ].map(([number, title, copy]) => <motion.div className="principle-item" key={number} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}><span>{number}</span><div><h3>{title}</h3><p>{copy}</p></div><ArrowUpRight size={15} /></motion.div>)}
+      <section className="lux-principles section-shell" id="principles">
+        <div className="lux-section-meta"><span>05 / QUIETLY CONSIDERED</span><span>CAPABILITY WITH CLARITY</span></div>
+        <div className="principles-layout">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={rise}>
+            <h2>Power, without<br /><em>the performance.</em></h2>
+            <p>Useful intelligence should be clear about what it is, what it can do, and where your control begins.</p>
+          </motion.div>
+          <div className="lux-principle-list">
+            <motion.div className="lux-principle" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={rise}><span>01</span><div><h3>Clarity over claims.</h3><p>ANA helps you think, create and plan — without pretending to control your world.</p></div><ShieldCheck size={18} /></motion.div>
+            <motion.div className="lux-principle" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={rise}><span>02</span><div><h3>Designed around you.</h3><p>Your tone, your pace and your way of exploring an idea remain yours to shape.</p></div><Fingerprint size={18} /></motion.div>
+            <motion.div className="lux-principle" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={rise}><span>03</span><div><h3>Nothing to install.</h3><p>Open the experience in a browser. No local model downloads or complex setup.</p></div><Orbit size={18} /></motion.div>
           </div>
         </div>
       </section>
 
-      <section className="closing-section">
-        <div className="closing-aura" />
-        <motion.div className="closing-content" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}>
-          <div className="eyebrow"><span className="eyebrow-line" /> YOUR SPACE IS READY</div>
-          <h2>Make room for<br /><em>a better question.</em></h2>
-          <p>Start a conversation. See where it takes you.</p>
-          <Link className="button button-primary button-large" href="/app">Enter ANA <ArrowUpRight size={16} /></Link>
+      <section className="lux-closing">
+        <div className="closing-star star-one" /><div className="closing-star star-two" /><div className="closing-star star-three" />
+        <motion.div className="lux-closing-content" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={rise}>
+          <div className="lux-eyebrow"><span className="eyebrow-pulse" /> THE NEXT THOUGHT IS YOURS</div>
+          <h2>Make space<br />for <em>possibility.</em></h2>
+          <p>Bring the question. Follow where it leads.</p>
+          <Link href="/app" className="lux-primary-button closing-button">Begin with ANA <ArrowUpRight size={17} /></Link>
         </motion.div>
+        <div className="closing-orbit-art"><div /><div /><div /><span>A</span></div>
       </section>
-      <footer className="site-footer"><Link className="brand" href="/"><span className="brand-mark">A</span><span>ANA</span></Link><span className="footer-note">A DIFFERENT KIND OF INTELLIGENCE.</span><span className="footer-copy">© {new Date().getFullYear()} ANA · MADE FOR THE WEB</span></footer>
+
+      <footer className="lux-footer">
+        <Link className="lux-brand" href="/"><span className="lux-brand-symbol"><span>A</span><i /></span><span className="lux-brand-name">ANA<span>®</span></span></Link>
+        <span className="lux-footer-tagline">A DIFFERENT KIND OF INTELLIGENCE.</span>
+        <div className="lux-footer-right"><span>MADE FOR THE WEB</span><span>© {new Date().getFullYear()} ANA</span></div>
+      </footer>
     </main>
   );
 }
