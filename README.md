@@ -97,7 +97,7 @@ You do not need to install Node.js, download a model or run a server on your lap
 6. Open the generated `workers.dev` URL. Visit `/api/health`; it should report `available: true` when the binding is correctly enabled.
 7. Open the homepage and choose **Enter ANA**.
 
-The included Cloudflare configuration sets the Worker entry point to `.open-next/worker.js`, serves the adapted assets from `.open-next/assets`, enables `nodejs_compat`, and exposes the Workers AI binding.
+The included Cloudflare configuration sets the Worker entry point to `.open-next/worker.js`, serves the adapted assets from `.open-next/assets`, enables `nodejs_compat`, exposes the Workers AI binding and defines the `AI_RATE_LIMITER` rate-limit binding.
 
 ### Optional developer workflow
 
@@ -121,6 +121,7 @@ Workers AI calls made during local preview can use the connected Cloudflare acco
 - The only model provider in this version is the Cloudflare Workers AI binding.
 - There is no provider fallback, paid API key, auto-upgrade path or subscription flow.
 - The server validates the message count, role and request size before inference.
+- A Cloudflare Rate Limiting binding caps chat requests at 8 per minute per client IP before inference. Cloudflare describes this limiter as approximate and regional, so it is an abuse-reduction measure rather than a strict global quota.
 - The model output is bounded with a token limit.
 - Quota/capacity errors become a clear unavailable message rather than a paid fallback.
 - Keep Workers Free billing disabled if you require a hard zero-cost ceiling.
