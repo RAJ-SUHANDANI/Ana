@@ -34,5 +34,6 @@
     "tailwindcss": "^4.3.3",
     "typescript": "^5.9.3",
     "wrangler": "^4.156.0"
-  }
+  },
+  "description": "A free, browser-based AI companion with an Obsidian Aura interface, a voice-reactive neural sphere, adaptive conversation styles and Cloudflare-hosted AI."
 }
