@@ -156,7 +156,7 @@ export function AssistantWorkspace() {
           primaryProvider?: "openrouter" | "cloudflare" | null;
         };
         if (response.ok && data.available) {
-          setModelStatus(data.primaryProvider === "openrouter" ? "OpenRouter ready" : "Cloudflare fallback ready");
+          setModelStatus(data.primaryProvider === "openrouter" ? "OpenRouter configured" : "Cloudflare fallback configured");
         } else {
           setModelStatus("AI not configured");
           setComposerStatus("Add OPENROUTER_API_KEY as a Cloudflare Worker secret. Cloudflare Workers AI can remain enabled as an optional fallback.");
