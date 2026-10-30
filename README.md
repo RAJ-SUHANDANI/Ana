@@ -1,109 +1,144 @@
 # ANA — A Different Kind of Intelligence
 
-ANA is a browser-based AI companion designed around thoughtful conversation, adaptive communication styles and a distinctive, voice-reactive glowing sphere.
+ANA is a web-based AI companion built with the **Next.js App Router**, TypeScript and a custom visual identity. It centres on thoughtful conversation, user-selected communication styles and a distinctive glowing sphere that responds to voice and assistant activity.
 
-The first release focuses on three experiences: a premium public landing page, a focused AI workspace and simple user preferences. It is intentionally small enough to maintain while establishing a distinctive visual identity.
+The first release is deliberately focused: a premium public landing page, a functional AI workspace, optional browser voice, local conversation history and a small set of useful preferences.
 
 ## Product principles
 
-- **Web only:** Use ANA in a modern browser; no native application is required.
-- **No local AI installation:** Language-model inference runs through a hosted Cloudflare Workers AI binding.
-- **No paid AI API keys:** The project does not call paid OpenAI, Anthropic, Gemini or similar inference APIs.
+- **Web only:** ANA runs in a modern browser. There is no native mobile or desktop app.
+- **No local model:** AI inference runs remotely through the Cloudflare Workers AI binding. Users do not download or run an AI model on their device.
+- **No paid AI API keys:** The app does not require OpenAI, Anthropic, Gemini or other paid provider keys.
 - **No trials or upgrade prompts:** No trial periods, subscriptions, pricing tiers or upgrade screens.
-- **Free-tier first:** The project does not intentionally fall back to paid inference. When the provider's free allowance is exhausted, AI requests return an unavailable response.
-- **Honest capabilities:** ANA can answer questions, explain, brainstorm, draft and help plan. It does not claim to control accounts or complete external actions it cannot perform.
+- **Free-tier first:** ANA is designed for Cloudflare's Workers Free plan. It does not intentionally fall back to a paid inference service.
+- **Honest capabilities:** V1 answers questions, explains, brainstorms, writes and helps plan. It does not claim to control accounts or complete external actions it cannot perform.
 
-> **Free-service note:** Cloudflare Workers AI currently documents a free allowance of 10,000 Neurons per day on the Workers Free plan. This is an account-level shared allowance, not unlimited usage per visitor. Provider limits and model availability can change. ANA does not switch to paid inference. See [Cloudflare Workers AI pricing](https://developers.cloudflare.com/workers-ai/platform/pricing/).
+> **Free usage is limited.** Cloudflare Workers AI currently documents 10,000 Neurons per day at no charge on the Workers Free plan. This is a shared account allowance, not an unlimited allowance per user. When the quota is exhausted, AI requests fail until the allowance resets. Provider pricing and limits can change. Keep Cloudflare billing disabled if a strict zero-cost deployment is required. See [Cloudflare Workers AI pricing](https://developers.cloudflare.com/workers-ai/platform/pricing/).
 
 ## Experience
 
-### Public website
-The landing page uses an Obsidian Aura visual system, editorial typography, custom animated sphere artwork, restrained scroll reveals and interactive personality examples.
+### Premium public website
+The landing page uses the ANA Obsidian Aura design system: deep ink surfaces, electric violet and blue light, elegant typography, original orb artwork, restrained section reveals and interactive personality examples.
 
 ### AI workspace
-- Text conversations with a hosted language model.
-- Warm, Focused, Playful, Calm, Professional and Supportive styles.
-- Browser-local conversation history.
-- Optional speech output through browser voices.
-- Optional speech input where the Web Speech Recognition API is available.
-- Copy and read-aloud actions.
-- Responsive layout and keyboard shortcuts.
+- Text conversations powered by a hosted language model.
+- Six conversation styles: Warm, Focused, Playful, Calm, Professional and Supportive.
+- Conversation history stored in the current browser.
+- Optional speech output using browser voices.
+- Optional speech recognition where the browser supports the Web Speech Recognition API.
+- Copy and read-aloud controls.
+- Responsive sidebar, recent conversations, appearance preferences and data deletion.
 
 ### Neural sphere
-The sphere is an original Canvas 2D rendering with luminous layers, internal energy filaments, orbital lines and pointer response. In the workspace its colour and energy respond to listening, thinking and speaking states. Microphone input and speech output are browser capabilities and vary by browser.
+The sphere is a custom Canvas renderer rather than a static image or downloaded model. It combines a dimensional luminous core, inner plasma filaments, orbit lines and fine particles. It changes its energy and colour for idle, listening, thinking and speaking states. While the user speaks, microphone amplitude drives its movement; while ANA speaks, the orb uses a speaking pulse. Pointer movement creates a subtle parallax response.
 
-## Technology
+Microphone access is requested only after the user selects voice input. Browser speech recognition support and its data handling vary by browser and operating system.
 
-- Semantic HTML, CSS and modern JavaScript modules.
-- Canvas 2D for the animated sphere.
-- Cloudflare Workers for the API boundary.
-- Cloudflare Workers AI for hosted inference.
-- Browser localStorage for conversation history and preferences.
-- Cloudflare Worker static assets for deployment.
+## Technology stack
 
-This first version deliberately avoids a large framework and heavy 3D runtime. No model is downloaded or run on the user's device.
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 16 App Router |
+| UI | React 19 |
+| Language | TypeScript |
+| Styling | Tailwind CSS 4 + shared custom design system |
+| Motion | Motion for React |
+| Icons | Lucide React |
+| AI inference | Cloudflare Workers AI |
+| AI model | `@cf/zai-org/glm-4.7-flash` |
+| Cloud runtime | Cloudflare Workers |
+| Next.js deployment adapter | OpenNext for Cloudflare |
+| Local persistence | Browser localStorage |
 
-## Repository structure
+The app does not use a local model, local database server or paid AI provider. The Cloudflare AI binding is accessed only by the server-side Next.js Route Handler; no provider credential is exposed to the browser.
+
+## Project structure
 
 ```text
 .
-├── index.html
-├── app.html
-├── styles.css
-├── favicon.svg
-├── src/
-│   ├── app.js
-│   ├── landing.js
-│   └── orb.js
-├── worker/
-│   └── index.js
-├── wrangler.jsonc
-└── package.json
+├── app/
+│   ├── api/
+│   │   ├── chat/route.ts       # Validated chat endpoint and Workers AI call
+│   │   └── health/route.ts     # AI binding status
+│   ├── app/page.tsx            # Assistant workspace route (/app)
+│   ├── error.tsx
+│   ├── globals.css             # Obsidian Aura design system
+│   ├── layout.tsx
+│   ├── loading.tsx
+│   ├── not-found.tsx
+│   └── page.tsx                # Public landing page
+├── components/
+│   ├── assistant-workspace.tsx
+│   ├── landing-page.tsx
+│   └── neural-orb.tsx
+├── public/
+│   └── favicon.svg
+├── instrumentation.ts
+├── next.config.ts
+├── open-next.config.ts
+├── package.json
+├── postcss.config.mjs
+├── tsconfig.json
+└── wrangler.jsonc
 ```
 
-## Deployment
+## Deploy ANA from GitHub to Cloudflare
 
-The repository is configured for Cloudflare Workers with static assets and a Workers AI binding. You can connect GitHub to Cloudflare and deploy from its dashboard. The owner will need to create a free Cloudflare account and authorize the repository.
+You do not need to install Node.js, download a model or run a server on your laptop to use the deployed site. The project owner does need to connect the GitHub repository to a Cloudflare account once.
 
-1. In Cloudflare, create a Worker and connect this repository through the Git integration.
-2. Use the included `wrangler.jsonc` configuration and enable the Workers AI binding named `AI`.
-3. Deploy the Worker with the included configuration. Static pages are served by the Worker assets binding; `/api/*` requests are routed to the Worker first.
-4. Open the generated `workers.dev` URL. Check `/api/health` to confirm the AI binding is connected, then visit the homepage and open the AI workspace.
+1. Create or sign in to a Cloudflare account and keep it on the **Workers Free** plan.
+2. In Cloudflare Workers & Pages, create a Worker using the Git integration and connect this repository.
+3. Make sure the repository root is the build root. The deployment uses the included `wrangler.jsonc` and `open-next.config.ts`.
+4. Use the OpenNext Cloudflare build/deploy flow. The project scripts are:
+   - `npm run cf:build` — build Next.js and adapt the output for Cloudflare.
+   - `npm run cf:preview` — build and preview in the Workers runtime.
+   - `npm run deploy` — build and deploy to Cloudflare Workers.
+5. Confirm the AI binding named `AI` is present. It is declared in `wrangler.jsonc`.
+6. Open the generated `workers.dev` URL. Visit `/api/health`; it should report `available: true` when the binding is correctly enabled.
+7. Open the homepage and choose **Enter ANA**.
 
-Cloudflare's dashboard and Git integration options can change. The repository includes the Worker configuration as the deployment source of truth.
+The included Cloudflare configuration sets the Worker entry point to `.open-next/worker.js`, serves the adapted assets from `.open-next/assets`, enables `nodejs_compat`, and exposes the Workers AI binding.
 
 ### Optional developer workflow
 
-Local development is not required to use or deploy ANA. Developers who choose to work locally can use Node.js and Wrangler:
+A local development environment is optional; it is not needed by visitors. Developers can use Node.js 22+:
 
 ```bash
 npm install
 npm run dev
 ```
 
-Cloudflare documents that Workers AI requests made during local development still access the Cloudflare account and consume AI usage. Avoid test inference requests if you need to preserve the daily free allowance.
+To test the Cloudflare runtime locally:
 
-## Free-tier safeguards
+```bash
+npm run cf:preview
+```
 
-- The Worker calls only the configured Workers AI binding.
-- No paid provider fallback is implemented.
-- Request message count and character size are bounded.
-- Provider quota/capacity errors are returned as clear unavailable responses.
-- Do not enable paid billing if maintaining a strict zero-cost deployment is required.
-- The Worker allows same-origin browser requests. This is a useful baseline, not authentication: non-browser clients can still call a public endpoint. Before sharing widely, add robust abuse protection/rate limiting and consider an explicit challenge. Do not advertise a public endpoint as abuse-proof.
+Workers AI calls made during local preview can use the connected Cloudflare account and consume its daily AI allowance. Avoid unnecessary model calls when preserving the free allowance matters.
 
-## Privacy
+## Free-tier and abuse safeguards
 
-- Conversation history and preferences are stored in this browser.
-- Clearing browser data can remove saved conversations.
-- Conversation text is sent to the configured Cloudflare Worker for inference.
-- Microphone use starts only when the user selects voice input.
-- Browser speech recognition may use a browser/platform service; it is not guaranteed to be local or available everywhere.
+- The only model provider in this version is the Cloudflare Workers AI binding.
+- There is no provider fallback, paid API key, auto-upgrade path or subscription flow.
+- The server validates the message count, role and request size before inference.
+- The model output is bounded with a token limit.
+- Quota/capacity errors become a clear unavailable message rather than a paid fallback.
+- Keep Workers Free billing disabled if you require a hard zero-cost ceiling.
+- Before sharing a public instance widely, add persistent rate limiting or challenge-based abuse controls. Browser-side controls and same-origin checks are not authentication and cannot prevent all scripted requests.
+
+## Privacy and data
+
+- Conversation history, selected mood, theme and voice preference are stored in the current browser's localStorage.
+- Clearing browser storage removes these conversations and preferences.
+- Conversation text is transmitted to Cloudflare Workers AI through the ANA server route to generate a reply.
+- Microphone access starts only when the user explicitly selects voice input.
+- Browser speech recognition may use the browser/platform recognition service; it is not guaranteed to run locally.
+- Voice output uses the browser's available speech synthesis voices.
 - Do not share passwords, payment credentials or other secrets with ANA.
 
 ## V1 boundaries
 
-ANA V1 is a conversational assistant, not an autonomous computer agent. It can answer questions, explain concepts, brainstorm, write and help plan. It does not send email, access private accounts, control other applications or execute arbitrary code.
+ANA V1 is a conversational companion, not an autonomous computer agent. It can answer questions, explain, brainstorm, draft, calculate and help plan. It does not send emails, access private accounts, control other applications, browse the user's private files or execute arbitrary code.
 
 ## License
 
