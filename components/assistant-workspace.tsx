@@ -151,16 +151,20 @@ export function AssistantWorkspace() {
   useEffect(() => {
     fetch("/api/health")
       .then(async (response) => {
-        const data = await response.json() as { available?: boolean };
-        if (response.ok && data.available) setModelStatus("Cloud AI ready");
-        else {
+        const data = await response.json() as {
+          available?: boolean;
+          primaryProvider?: "openrouter" | "cloudflare" | null;
+        };
+        if (response.ok && data.available) {
+          setModelStatus(data.primaryProvider === "openrouter" ? "OpenRouter ready" : "Cloudflare fallback ready");
+        } else {
           setModelStatus("AI not configured");
-          setComposerStatus("The workspace is ready. Cloud AI needs to be connected by the project owner.");
+          setComposerStatus("Add OPENROUTER_API_KEY as a Cloudflare Worker secret. Cloudflare Workers AI can remain enabled as an optional fallback.");
         }
       })
       .catch(() => {
         setModelStatus("Preview mode");
-        setComposerStatus("The interface is ready. Deploy ANA with its Cloudflare AI binding to enable conversations.");
+        setComposerStatus("The interface is ready. Deploy ANA with its OpenRouter secret to enable conversations; Cloudflare AI can remain as a fallback.");
       });
   }, []);
 
@@ -337,7 +341,7 @@ export function AssistantWorkspace() {
           mood,
         }),
       });
-      const data = await response.json() as { response?: string; error?: string };
+      const data = await response.json() as { response?: string; error?: string; provider?: "openrouter" | "cloudflare" };
       if (!response.ok) throw new Error(data.error || "The AI service is unavailable.");
       if (!data.response?.trim()) throw new Error("ANA returned an empty response.");
       const assistantMessage: Message = {
@@ -351,7 +355,7 @@ export function AssistantWorkspace() {
           ? { ...conversation, messages: [...conversation.messages, assistantMessage] }
           : conversation,
       ));
-      setModelStatus("Cloud AI connected");
+      setModelStatus(data.provider === "openrouter" ? "OpenRouter · Free" : "Cloudflare fallback");
       setOrbState("idle");
       if (speakReplies) speak(assistantMessage.content);
     } catch (cause) {
