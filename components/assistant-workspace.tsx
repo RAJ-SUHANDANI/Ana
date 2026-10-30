@@ -444,6 +444,7 @@ export function AssistantWorkspace() {
               </div>
             ) : messages.length ? (
               <div className="messages" aria-live="polite">
+                <div className="conversation-orb-strip"><NeuralOrb className="conversation-orb" state={orbState} audioLevel={audioLevel} label="ANA activity sphere" /><span>ANA / {orbState === "idle" ? "HERE WITH YOU" : orbState.toUpperCase()}</span></div>
                 {messages.map((message) => (
                   <article className={"message " + message.role} key={message.id}>
                     <div className="message-avatar">{message.role === "assistant" ? "A" : "Y"}</div>
