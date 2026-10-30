@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, type CSSProperties } from "react";
 import { motion, useReducedMotion, type Variants } from "motion/react";
 import {
-  ArrowDown, ArrowUpRight, AudioLines, Compass, Fingerprint, Menu,
+  ArrowDown, ArrowUpRight, Compass, Fingerprint, Menu,
   MessageCircle, Mic, Orbit, ShieldCheck, Sparkles, X,
 } from "lucide-react";
 import { NeuralOrb } from "@/components/neural-orb";
