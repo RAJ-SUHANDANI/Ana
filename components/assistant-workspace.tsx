@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowUp, AudioLines, Check, Clipboard, History, Menu, MessageCircle, Mic, MicOff, Moon, Plus, Settings, Sparkles, Sun, Volume2, X } from "lucide-react";
 import { NeuralOrb, type OrbState } from "@/components/neural-orb";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 type Mood = "warm" | "focused" | "playful" | "calm" | "professional" | "supportive";
 type Message = { id: string; role: "user" | "assistant"; content: string; createdAt: number };
@@ -450,7 +452,7 @@ export function AssistantWorkspace() {
                     <div className="message-avatar">{message.role === "assistant" ? "A" : "Y"}</div>
                     <div className="message-content">
                       {message.role === "assistant" && <div className="message-label">ANA <span>· RESPONSE</span></div>}
-                      <div className="message-text">{message.content}</div>
+                      <div className="message-text"><ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown></div>
                       {message.role === "assistant" && <div className="message-actions">
                         <button onClick={() => void copyMessage(message.content)}><Clipboard size={12} /> Copy</button>
                         <button onClick={() => speak(message.content)}><Volume2 size={12} /> Read aloud</button>
