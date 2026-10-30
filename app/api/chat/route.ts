@@ -9,6 +9,10 @@ const MAX_MESSAGE_CHARS = 6_000;
 const MAX_TOTAL_CHARS = 18_000;
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
+type RateLimitBinding = {
+  limit: (input: { key: string }) => Promise<{ success: boolean }>;
+};
+
 type AiBinding = {
   run: (
     model: string,
@@ -96,8 +100,16 @@ export async function POST(request: Request) {
 
   try {
     const { env } = getCloudflareContext();
-    const ai = (env as unknown as { AI?: AiBinding }).AI;
+    const bindings = env as unknown as { AI?: AiBinding; AI_RATE_LIMITER?: RateLimitBinding };
+    const ai = bindings.AI;
     if (!ai) return error("ANA's cloud AI binding is not configured yet.", 503);
+
+    const rateLimiter = bindings.AI_RATE_LIMITER;
+    if (rateLimiter) {
+      const clientIp = request.headers.get("cf-connecting-ip") || "unknown-client";
+      const { success } = await rateLimiter.limit({ key: clientIp });
+      if (!success) return error("You have sent several messages in a short time. Please pause briefly and try again.", 429);
+    }
 
     const result = await ai.run(MODEL, {
       messages: [{ role: "system", content: systemPrompt }, ...messages],
