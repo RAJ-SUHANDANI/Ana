@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, type CSSProperties } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { motion, useReducedMotion, type Variants } from "motion/react";
 import { ArrowDown, ArrowUpRight, AudioLines, Menu, X } from "lucide-react";
 import { NeuralOrb } from "@/components/neural-orb";
 
@@ -13,7 +13,7 @@ const moods = {
   calm: "Take your time. There's no need to rush. We can look at it together, one thought at a time.",
 };
 
-const reveal = {
+const reveal: Variants = {
   hidden: { opacity: 0, y: 24 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.75, ease: "easeOut" } },
 };
