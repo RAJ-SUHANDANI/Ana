@@ -108,7 +108,7 @@ Cloudflare's Workers Free plan documents a daily Workers AI Neurons allowance. T
 
 Do not add a real key to .env.example, source files, GitHub commits or browser code. The included .env.example documents the variable names only.
 
-For a local developer environment, use a private .env.local file and keep it out of Git. The production Cloudflare deployment must receive the key as a Worker Secret.
+For a local Cloudflare preview, create a private .dev.vars file (already ignored by Git) with OPENROUTER_API_KEY=your_key. The production deployment must receive the key as a Cloudflare Worker Secret.
 
 ## Deploy ANA from GitHub to Cloudflare
 
