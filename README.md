@@ -67,9 +67,8 @@ The repository is configured for Cloudflare Workers with static assets and a Wor
 
 1. In Cloudflare, create a Worker and connect this repository through the Git integration.
 2. Use the included `wrangler.jsonc` configuration and enable the Workers AI binding named `AI`.
-3. Set the allowed origin variable to the exact URL from which ANA will be served. The sample is `https://ana.pages.dev`; replace it with the actual Worker or custom Pages hostname.
-4. Deploy the Worker. Open its generated URL and check `/api/health`.
-5. Visit the homepage and open the AI workspace.
+3. Deploy the Worker with the included configuration. Static pages are served by the Worker assets binding; `/api/*` requests are routed to the Worker first.
+4. Open the generated `workers.dev` URL. Check `/api/health` to confirm the AI binding is connected, then visit the homepage and open the AI workspace.
 
 Cloudflare's dashboard and Git integration options can change. The repository includes the Worker configuration as the deployment source of truth.
 
@@ -91,7 +90,7 @@ Cloudflare documents that Workers AI requests made during local development stil
 - Request message count and character size are bounded.
 - Provider quota/capacity errors are returned as clear unavailable responses.
 - Do not enable paid billing if maintaining a strict zero-cost deployment is required.
-- Before sharing a public deployment widely, configure origin restrictions and add abuse protection/rate limiting. CORS is not authentication and does not stop non-browser clients.
+- The Worker allows same-origin browser requests. This is a useful baseline, not authentication: non-browser clients can still call a public endpoint. Before sharing widely, add robust abuse protection/rate limiting and consider an explicit challenge. Do not advertise a public endpoint as abuse-proof.
 
 ## Privacy
 
