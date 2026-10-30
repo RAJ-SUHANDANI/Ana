@@ -1,0 +1,9 @@
+import{NeuralOrb}from'./orb.js';
+['hero-orb','feature-orb'].forEach(id=>{const el=document.getElementById(id);if(el)new NeuralOrb(el)});
+const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}}),{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+const copies={warm:"Of course. Let's take a look together. Tell me what's on your mind, and we'll work through it one step at a time.",focused:"Let's get to the point. Share the challenge, and I'll help you identify the clearest next move.",playful:"Oh, now we're getting somewhere. Tell me what you're thinking — let's see what we can make of it.",calm:"Take your time. There's no need to rush. We can look at it together, one thought at a time."};
+document.querySelectorAll('.mood-tab').forEach(tab=>tab.addEventListener('click',()=>{document.querySelectorAll('.mood-tab').forEach(t=>t.classList.toggle('active',t===tab));const p=document.getElementById('mood-copy');p.style.opacity=0;setTimeout(()=>{p.textContent=copies[tab.dataset.mood];p.style.opacity=1},180)}));
+const menu=document.querySelector('.menu-toggle'),nav=document.querySelector('.desktop-nav');menu?.addEventListener('click',()=>nav.classList.toggle('open'));nav?.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>nav.classList.remove('open')));
+document.querySelectorAll('.capability-card').forEach(card=>{const toggle=()=>card.classList.toggle('expanded');card.addEventListener('click',toggle);card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle()}})});
+document.getElementById('year').textContent=new Date().getFullYear();
