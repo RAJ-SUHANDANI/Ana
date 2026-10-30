@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ana-ai",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-10-29",
+  "workers_dev": true,
+  "ai": { "binding": "AI" },
+  "assets": {
+    "directory": "./",
+    "binding": "ASSETS",
+    "html_handling": "none",
+    "not_found_handling": "404-page"
+  },
+  "vars": {
+    "ALLOWED_ORIGINS": "https://ana.pages.dev"
+  }
+}
