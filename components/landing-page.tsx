@@ -112,7 +112,7 @@ export function LandingPage() {
           <h2>Less interface.<br /><em>More intelligence.</em></h2>
           <div className="manifesto-aside">
             <span className="manifesto-mark">“</span>
-            <p>The best conversations don't feel like using software. They feel like finding the missing piece — the question, the perspective, the next step you couldn't quite reach alone.</p>
+            <p>The best conversations don&apos;t feel like using software. They feel like finding the missing piece — the question, the perspective, the next step you couldn&apos;t quite reach alone.</p>
             <Link href="/app" className="lux-text-link">Step inside ANA <ArrowUpRight size={15} /></Link>
           </div>
         </div>
@@ -121,7 +121,7 @@ export function LandingPage() {
 
       <section className="lux-capabilities section-shell" id="capabilities">
         <motion.div className="lux-section-heading" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={rise}>
-          <div><div className="lux-section-meta"><span>02 / WHAT IT CAN DO</span><span>ONE SYSTEM. MANY DIRECTIONS.</span></div><h2>Ideas don't move<br />in <em>straight lines.</em></h2></div>
+          <div><div className="lux-section-meta"><span>02 / WHAT IT CAN DO</span><span>ONE SYSTEM. MANY DIRECTIONS.</span></div><h2>Ideas don&apos;t move<br />in <em>straight lines.</em></h2></div>
           <p>Follow a thought, change direction, find a sharper angle — ANA is built to move with you.</p>
         </motion.div>
         <div className="lux-bento-grid">
@@ -130,7 +130,7 @@ export function LandingPage() {
             <div className="bento-conversation-copy"><h3>Think beyond<br /><em>the first answer.</em></h3><p>Explore a question from every angle. Keep going until it clicks.</p></div>
             <div className="conversation-visual" aria-hidden="true">
               <div className="conversation-visual-line"><span className="mini-avatar">A</span><span>What if we looked at it differently?</span><i>NOW</i></div>
-              <div className="conversation-visual-line response-line"><span className="mini-avatar">A</span><span>Let's turn the problem around. Start with what you already know...</span></div>
+              <div className="conversation-visual-line response-line"><span className="mini-avatar">A</span><span>Let&apos;s turn the problem around. Start with what you already know...</span></div>
               <div className="conversation-spark"><Sparkles size={16} /></div><div className="conversation-orbit-mark"><i /><i /><i /></div>
             </div>
             <Link href="/app" className="bento-link" aria-label="Start a conversation with ANA"><ArrowUpRight size={17} /></Link>
