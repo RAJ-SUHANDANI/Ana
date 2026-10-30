@@ -7,11 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
-    "cf:build": "opennextjs-cloudflare build",
-    "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-    "cf:typegen": "wrangler types --env-interface CloudflareEnv"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "lucide-react": "^1.61.0",
@@ -23,7 +19,6 @@
     "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
-    "@opennextjs/cloudflare": "^1.20.14",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^22.15.30",
     "@types/react": "^19.1.8",
@@ -32,8 +27,7 @@
     "eslint-config-next": "^16.4.3",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.3.3",
-    "typescript": "^5.9.3",
-    "wrangler": "^4.156.0"
+    "typescript": "^5.9.3"
   },
-  "description": "A free, browser-based AI companion with an Obsidian Aura interface, a voice-reactive neural sphere, adaptive conversation styles and Cloudflare-hosted AI."
+  "description": "A free, browser-based AI companion with an Obsidian Aura interface, a voice-reactive neural sphere, adaptive conversation styles and OpenRouter-hosted free AI."
 }

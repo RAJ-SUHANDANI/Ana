@@ -1,43 +1,27 @@
 import { NextResponse } from "next/server";
-import { getCloudflareContext } from "@opennextjs/cloudflare";
 
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type HealthEnv = {
-  OPENROUTER_API_KEY?: string;
-  OPENROUTER_MODEL?: string;
-  AI?: unknown;
-};
+const DEFAULT_MODEL = "openrouter/free";
 
 export async function GET() {
-  try {
-    const { env } = getCloudflareContext();
-    const bindings = env as unknown as HealthEnv;
-    const openrouterConfigured = Boolean(bindings.OPENROUTER_API_KEY?.trim());
-    const cloudflareFallbackAvailable = Boolean(bindings.AI);
+  const configured = Boolean(process.env.OPENROUTER_API_KEY?.trim());
+  const model = process.env.OPENROUTER_MODEL?.trim() || DEFAULT_MODEL;
+  const modelAllowed = model === DEFAULT_MODEL || model.endsWith(":free");
 
-    return NextResponse.json(
-      {
-        available: openrouterConfigured || cloudflareFallbackAvailable,
-        primaryProvider: openrouterConfigured ? "openrouter" : "cloudflare",
-        openrouterConfigured,
-        cloudflareFallbackAvailable,
-        model: openrouterConfigured
-          ? bindings.OPENROUTER_MODEL?.trim() || "openrouter/free"
-          : "@cf/zai-org/glm-4.7-flash",
-      },
-      { headers: { "Cache-Control": "no-store" } },
-    );
-  } catch {
-    return NextResponse.json(
-      {
-        available: false,
-        primaryProvider: null,
-        openrouterConfigured: false,
-        cloudflareFallbackAvailable: false,
-        message: "The Worker runtime is not available in this environment.",
-      },
-      { headers: { "Cache-Control": "no-store" } },
-    );
-  }
+  return NextResponse.json(
+    {
+      available: configured && modelAllowed,
+      configured,
+      provider: "openrouter",
+      model,
+      message: !configured
+        ? "Add OPENROUTER_API_KEY to the Vercel project environment variables."
+        : !modelAllowed
+          ? "OPENROUTER_MODEL must be openrouter/free or a model ID ending in :free."
+          : undefined,
+    },
+    { headers: { "Cache-Control": "no-store" } },
+  );
 }

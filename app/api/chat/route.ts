@@ -1,32 +1,16 @@
 import { NextResponse } from "next/server";
-import { getCloudflareContext } from "@opennextjs/cloudflare";
 
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
-const CLOUDFLARE_MODEL = "@cf/zai-org/glm-4.7-flash";
-const DEFAULT_OPENROUTER_MODEL = "openrouter/free";
+const DEFAULT_MODEL = "openrouter/free";
 const MAX_MESSAGES = 16;
 const MAX_MESSAGE_CHARS = 6_000;
 const MAX_TOTAL_CHARS = 18_000;
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 type ModelMessage = { role: "system" | "user" | "assistant"; content: string };
-type RateLimitBinding = { limit: (input: { key: string }) => Promise<{ success: boolean }> };
-type AiBinding = {
-  run: (model: string, input: {
-    messages: ModelMessage[];
-    max_tokens: number;
-    temperature: number;
-    stream?: false;
-    chat_template_kwargs?: { enable_thinking: boolean };
-  }) => Promise<{ response?: string; choices?: Array<{ message?: { content?: string } }> }>;
-};
-type RuntimeEnv = {
-  OPENROUTER_API_KEY?: string;
-  OPENROUTER_MODEL?: string;
-  AI?: AiBinding;
-  AI_RATE_LIMITER?: RateLimitBinding;
-};
 type OpenRouterResponse = {
   model?: string;
   choices?: Array<{ message?: { content?: unknown } }>;
@@ -49,19 +33,58 @@ const moodInstructions: Record<string, string> = {
 };
 
 function error(message: string, status: number) {
-  return NextResponse.json({ error: message }, {
-    status,
-    headers: { "Cache-Control": "no-store" },
-  });
+  return NextResponse.json(
+    { error: message },
+    { status, headers: { "Cache-Control": "no-store" } },
+  );
 }
 
-function getOpenRouterModel(configuredModel?: string) {
-  const model = configuredModel?.trim() || DEFAULT_OPENROUTER_MODEL;
-  // Never let an environment setting silently switch ANA to a paid model.
-  if (model !== DEFAULT_OPENROUTER_MODEL && !model.endsWith(":free")) {
-    throw new ProviderFailure(500, "OPENROUTER_MODEL must be openrouter/free or end in :free.");
+function getModel() {
+  const model = process.env.OPENROUTER_MODEL?.trim() || DEFAULT_MODEL;
+  if (model !== DEFAULT_MODEL && !model.endsWith(":free")) {
+    throw new ProviderFailure(
+      500,
+      "OPENROUTER_MODEL must be openrouter/free or a model ID ending in :free.",
+    );
   }
   return model;
+}
+
+function getProviderError(cause: unknown) {
+  if (!(cause instanceof ProviderFailure)) {
+    return {
+      message: "ANA could not reach OpenRouter. Please try again shortly.",
+      status: 503,
+    };
+  }
+  if (cause.status === 429) {
+    return {
+      message: "OpenRouter's free-model allowance or capacity is currently exhausted. Please try again later.",
+      status: 429,
+    };
+  }
+  if (cause.status === 401 || cause.status === 403) {
+    return {
+      message: "OpenRouter could not authorise this request. Check the OPENROUTER_API_KEY Secret in Vercel.",
+      status: 503,
+    };
+  }
+  if (cause.status === 402) {
+    return {
+      message: "OpenRouter could not serve the selected free model. Check the account and free-model availability.",
+      status: 503,
+    };
+  }
+  if (cause.status === 400 || cause.status === 404) {
+    return {
+      message: "OpenRouter rejected the selected model. Use openrouter/free or a model ID ending in :free.",
+      status: 500,
+    };
+  }
+  return {
+    message: "OpenRouter's AI service is temporarily unavailable. Please try again shortly.",
+    status: 503,
+  };
 }
 
 async function requestOpenRouter(
@@ -90,7 +113,7 @@ async function requestOpenRouter(
           data_collection: "deny",
         },
       }),
-      signal: AbortSignal.timeout(45_000),
+      signal: AbortSignal.timeout(50_000),
     });
   } catch {
     throw new ProviderFailure(503, "OpenRouter could not be reached.");
@@ -108,20 +131,24 @@ async function requestOpenRouter(
   }
 
   const rawContent = payload.choices?.[0]?.message?.content;
-  const answer =
-    typeof rawContent === "string"
-      ? rawContent
-      : Array.isArray(rawContent)
-        ? rawContent
-            .filter((part): part is { type: string; text: string } =>
-              Boolean(part) &&
-              typeof part === "object" &&
-              "text" in part &&
-              typeof part.text === "string",
-            )
-            .map((part) => part.text)
-            .join("")
-        : "";
+  let answer = "";
+  if (typeof rawContent === "string") {
+    answer = rawContent;
+  } else if (Array.isArray(rawContent)) {
+    answer = rawContent
+      .map((part: unknown) => {
+        if (
+          typeof part === "object" &&
+          part !== null &&
+          "text" in part &&
+          typeof part.text === "string"
+        ) {
+          return part.text;
+        }
+        return "";
+      })
+      .join("");
+  }
 
   if (!answer.trim()) {
     throw new ProviderFailure(502, "OpenRouter returned an empty answer.");
@@ -131,64 +158,6 @@ async function requestOpenRouter(
     response: answer.trim(),
     provider: "openrouter",
     model: payload.model || model,
-  };
-}
-
-async function requestCloudflare(ai: AiBinding, messages: ModelMessage[]) {
-  const result = await ai.run(CLOUDFLARE_MODEL, {
-    messages,
-    max_tokens: 900,
-    temperature: 0.65,
-    stream: false,
-    chat_template_kwargs: { enable_thinking: false },
-  });
-
-  const answer = result.response ?? result.choices?.[0]?.message?.content;
-  if (typeof answer !== "string" || !answer.trim()) {
-    throw new ProviderFailure(502, "Cloudflare AI returned an empty answer.");
-  }
-
-  return {
-    response: answer.trim(),
-    provider: "cloudflare",
-    model: CLOUDFLARE_MODEL,
-  };
-}
-
-function getUnavailableMessage(openRouterStatus: number | null, cloudflareFailed: boolean) {
-  if (cloudflareFailed) {
-    return {
-      message: "ANA's AI providers are temporarily unavailable. Please try again shortly.",
-      status: 503,
-    };
-  }
-  if (openRouterStatus === 429) {
-    return {
-      message: "OpenRouter's free-model allowance or capacity is currently exhausted. Please try again later.",
-      status: 429,
-    };
-  }
-  if (openRouterStatus === 401 || openRouterStatus === 403) {
-    return {
-      message: "OpenRouter could not authorise this request. Check the OPENROUTER_API_KEY secret in Cloudflare.",
-      status: 503,
-    };
-  }
-  if (openRouterStatus === 402) {
-    return {
-      message: "OpenRouter could not serve the selected free model. Check the model setting and free-model availability.",
-      status: 503,
-    };
-  }
-  if (openRouterStatus === 500) {
-    return {
-      message: "The OpenRouter model setting is invalid. Use openrouter/free or a model ID ending in :free.",
-      status: 500,
-    };
-  }
-  return {
-    message: "ANA's AI service could not complete this request. Please try again shortly.",
-    status: 503,
   };
 }
 
@@ -203,18 +172,23 @@ export async function POST(request: Request) {
 
   let body: { messages?: unknown; mood?: unknown };
   try {
-    body = await request.json();
+    const rawBody = await request.text();
+    if (rawBody.length > 24_000) return error("The request is too large.", 413);
+    body = JSON.parse(rawBody) as { messages?: unknown; mood?: unknown };
   } catch {
     return error("The request body must be valid JSON.", 400);
   }
 
-  if (!Array.isArray(body.messages) || body.messages.length === 0 || body.messages.length > MAX_MESSAGES) {
+  if (
+    !Array.isArray(body.messages) ||
+    body.messages.length === 0 ||
+    body.messages.length > MAX_MESSAGES
+  ) {
     return error("Send between 1 and 16 recent messages.", 400);
   }
 
   let totalChars = 0;
   const messages: ChatMessage[] = [];
-
   for (const entry of body.messages) {
     if (
       !entry ||
@@ -226,12 +200,10 @@ export async function POST(request: Request) {
     ) {
       return error("One or more messages has an invalid format.", 400);
     }
-
     const content = entry.content.trim();
     if (!content || content.length > MAX_MESSAGE_CHARS) {
       return error("A message is empty or exceeds the 6,000 character limit.", 400);
     }
-
     totalChars += content.length;
     messages.push({ role: entry.role as ChatMessage["role"], content });
   }
@@ -243,70 +215,53 @@ export async function POST(request: Request) {
     );
   }
 
-  const mood = typeof body.mood === "string" && body.mood in moodInstructions
-    ? body.mood
-    : "warm";
-
+  const mood =
+    typeof body.mood === "string" && body.mood in moodInstructions
+      ? body.mood
+      : "warm";
   const systemPrompt = [
     "You are ANA, a thoughtful, capable AI companion.",
     "Your character is calm confidence, intellectual curiosity, clarity and warmth. You are never theatrical, arrogant or excessively enthusiastic.",
     "Communicate naturally. Avoid generic AI filler and do not repeat the user's question unnecessarily.",
-    "Adapt your communication style to this user-selected preference: " + moodInstructions[mood],
+    "Adapt your communication style to this user-selected preference: " +
+      moodInstructions[mood],
     "Be honest about uncertainty and limitations. Never claim to have opened websites, sent messages, changed accounts or completed actions unless a tool actually performed them.",
     "In this first version you can answer questions, explain, brainstorm, write, calculate and help plan. You cannot access private accounts or control the user's device.",
     "Use readable Markdown when helpful. Keep the answer appropriately detailed for the request.",
   ].join("\n\n");
 
-  const modelMessages: ModelMessage[] = [{ role: "system", content: systemPrompt }, ...messages];
-
-  try {
-    const { env } = getCloudflareContext();
-    const bindings = env as unknown as RuntimeEnv;
-
-    // This limiter protects both providers from rapid repeated requests.
-    if (bindings.AI_RATE_LIMITER) {
-      const clientIp = request.headers.get("cf-connecting-ip") || "unknown-client";
-      const { success } = await bindings.AI_RATE_LIMITER.limit({ key: clientIp });
-      if (!success) {
-        return error("You have sent several messages in a short time. Please pause briefly and try again.", 429);
-      }
-    }
-
-    const apiKey = bindings.OPENROUTER_API_KEY?.trim();
-    let openRouterStatus: number | null = null;
-
-    if (apiKey) {
-      try {
-        const model = getOpenRouterModel(bindings.OPENROUTER_MODEL);
-        const result = await requestOpenRouter(apiKey, model, modelMessages, new URL(request.url).origin);
-        return NextResponse.json(result, { headers: { "Cache-Control": "no-store" } });
-      } catch (cause) {
-        openRouterStatus = cause instanceof ProviderFailure ? cause.status : 503;
-      }
-    }
-
-    // Cloudflare Workers AI is the free-tier fallback and also supports a
-    // deployment before an OpenRouter key has been configured.
-    if (bindings.AI) {
-      try {
-        const result = await requestCloudflare(bindings.AI, modelMessages);
-        return NextResponse.json(result, { headers: { "Cache-Control": "no-store" } });
-      } catch {
-        const unavailable = getUnavailableMessage(openRouterStatus, true);
-        return error(unavailable.message, unavailable.status);
-      }
-    }
-
-    if (!apiKey) {
-      return error("ANA's AI provider is not configured. Add OPENROUTER_API_KEY as a Cloudflare Worker secret.", 503);
-    }
-
-    const unavailable = getUnavailableMessage(openRouterStatus, false);
-    return error(unavailable.message, unavailable.status);
-  } catch {
+  const modelMessages: ModelMessage[] = [
+    { role: "system", content: systemPrompt },
+    ...messages,
+  ];
+  const apiKey = process.env.OPENROUTER_API_KEY?.trim();
+  if (!apiKey) {
     return error(
-      "ANA's server runtime is unavailable. Confirm the Cloudflare Worker bindings are configured.",
+      "ANA's AI is not configured yet. Add OPENROUTER_API_KEY as a Secret in your Vercel project settings.",
       503,
     );
+  }
+
+  let model: string;
+  try {
+    model = getModel();
+  } catch (cause) {
+    const providerError = getProviderError(cause);
+    return error(providerError.message, providerError.status);
+  }
+
+  try {
+    const result = await requestOpenRouter(
+      apiKey,
+      model,
+      modelMessages,
+      new URL(request.url).origin,
+    );
+    return NextResponse.json(result, {
+      headers: { "Cache-Control": "no-store" },
+    });
+  } catch (cause) {
+    const providerError = getProviderError(cause);
+    return error(providerError.message, providerError.status);
   }
 }

@@ -1,6 +1,6 @@
 name: Validate ANA Next.js
 concurrency:
-  group: ana-main-validation-${{ github.ref }}
+  group: ana-main-validation
   cancel-in-progress: true
 on:
   push:
@@ -21,7 +21,5 @@ jobs:
         run: npm run typecheck
       - name: Lint
         run: npm run lint
-      - name: Build Next.js
+      - name: Build Next.js for Vercel
         run: npm run build
-      - name: Build for Cloudflare Workers
-        run: npm run cf:build

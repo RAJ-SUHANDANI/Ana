@@ -153,18 +153,20 @@ export function AssistantWorkspace() {
       .then(async (response) => {
         const data = await response.json() as {
           available?: boolean;
-          primaryProvider?: "openrouter" | "cloudflare" | null;
+          provider?: "openrouter";
+          message?: string;
         };
         if (response.ok && data.available) {
-          setModelStatus(data.primaryProvider === "openrouter" ? "OpenRouter configured" : "Cloudflare fallback configured");
+          setModelStatus("OpenRouter configured");
+          setComposerStatus("ANA is ready. Ask away.");
         } else {
           setModelStatus("AI not configured");
-          setComposerStatus("Add OPENROUTER_API_KEY as a Cloudflare Worker secret. Cloudflare Workers AI can remain enabled as an optional fallback.");
+          setComposerStatus(data.message || "Add OPENROUTER_API_KEY as a Secret in your Vercel project settings, then redeploy.");
         }
       })
       .catch(() => {
         setModelStatus("Preview mode");
-        setComposerStatus("The interface is ready. Deploy ANA with its OpenRouter secret to enable conversations; Cloudflare AI can remain as a fallback.");
+        setComposerStatus("The interface is ready. Deploy ANA to Vercel and add OPENROUTER_API_KEY as a Secret to enable conversations.");
       });
   }, []);
 
@@ -341,7 +343,7 @@ export function AssistantWorkspace() {
           mood,
         }),
       });
-      const data = await response.json() as { response?: string; error?: string; provider?: "openrouter" | "cloudflare" };
+      const data = await response.json() as { response?: string; error?: string; provider?: "openrouter" };
       if (!response.ok) throw new Error(data.error || "The AI service is unavailable.");
       if (!data.response?.trim()) throw new Error("ANA returned an empty response.");
       const assistantMessage: Message = {
@@ -355,7 +357,7 @@ export function AssistantWorkspace() {
           ? { ...conversation, messages: [...conversation.messages, assistantMessage] }
           : conversation,
       ));
-      setModelStatus(data.provider === "openrouter" ? "OpenRouter · Free" : "Cloudflare fallback");
+      setModelStatus("OpenRouter · Free");
       setOrbState("idle");
       if (speakReplies) speak(assistantMessage.content);
     } catch (cause) {
